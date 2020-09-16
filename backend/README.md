@@ -36,6 +36,13 @@ From within the `./src` directory first ensure you are working using your create
 
 Each time you open a new terminal session, run:
 
+The application uses Auth0 for authentication and authorization of the api calls. Set below environment variables. You will be able to find the information in your Auth0 account that was setup. For documentation on setting up Auth0, refer to https://auth0.com/docs/quickstart/spa/react#configure-auth0
+
+```bash
+export AUTH0_DOMAIN='your AuthO Domain'
+export API_AUDIENCE='your Auth0 audience'
+```
+
 ```bash
 export FLASK_APP=api.py;
 ```
@@ -48,38 +55,55 @@ flask run --reload
 
 The `--reload` flag will detect file changes and restart the server automatically.
 
-## Tasks
+## REST API Reference
 
-### Setup Auth0
+### General
 
-1. Create a new Auth0 Account
-2. Select a unique tenant domain
-3. Create a new, single page web application
-4. Create a new API
-    - in API Settings:
-        - Enable RBAC
-        - Enable Add Permissions in the Access Token
-5. Create new API permissions:
-    - `get:drinks-detail`
-    - `post:drinks`
-    - `patch:drinks`
-    - `delete:drinks`
-6. Create new roles for:
-    - Barista
-        - can `get:drinks-detail`
-    - Manager
-        - can perform all actions
-7. Test your endpoints with [Postman](https://getpostman.com). 
-    - Register 2 users - assign the Barista role to one and Manager role to the other.
-    - Sign into each account and make note of the JWT.
-    - Import the postman collection `./starter_code/backend/udacity-fsnd-udaspicelatte.postman_collection.json`
-    - Right-clicking the collection folder for barista and manager, navigate to the authorization tab, and including the JWT in the token field (you should have noted these JWTs).
-    - Run the collection and correct any errors.
-    - Export the collection overwriting the one we've included so that we have your proper JWTs during review!
+* **Base URL** - The application is currently implemented to run locally under the standard port 5000. The API base url http://localhost:5000/
+* **Authentication** - The application uses Auth0 for authentication and authorization. Please refer to https://auth0.com/docs/quickstart/spa/react#configure-auth0 for information on setting up and configuring Auth0. The application uses bearer token based authenticating and authorizing approach to give access to the REST api endpoints.
 
-### Implement The Server
+Below are the roles that are configured and their permissions
+* Barista - can ```get:drink-details```
+* Manager - can perform all actions
 
-There are `@TODO` comments throughout the `./backend/src`. We recommend tackling the files in order and from top to bottom:
+### Errors
 
-1. `./src/auth/auth.py`
-2. `./src/api.py`
+The Coffee shop applicatoin uses convential HTTP response codes to indicate the success or failure of an API request. In general: Codes in 2xx range indicate success. Codes in the 4xx range indicate an error that failed given the information provided. Below json response will be returned for any failed API request:
+
+```
+{
+    "success": False,
+    "error": 404,
+    "message": "Resource Not Found"
+}
+```
+
+List of errors to expect:
+
+
+Error Code | Error Message
+---------- | -------------
+404 | Resource Not Found
+400 | Bad Request
+422 | Unprocessable Error
+405 | method not allowed
+401 | Authorization header is expected
+401 | Authorization header must be in the format Bearer token
+401 | Authorization header must start with Bearer
+401 | Operation not allowed. Check your permissions.
+401 | Authorization malformed.
+401 | token is expired
+401 | incorrect claims, please check the audience adn issuer
+401 | Unable to parse authentication token.
+401 | Unable to find appropriate key
+
+
+### API Endpoints
+
+Import the postman collection ./starter_code/backend/udacity-fsnd-udaspicelatte.postman_collection.json
+
+The collection has all the api endpoints setup. To test teh end points with Postman:
+1. Register 2 users - assign the Barista role to one and Manager role to the other.
+2. Sign into each account and make note of the JWT.
+3. Right-clicking the collection folder for barista and manager, navigate to the authorization tab, and including the JWT in the token field (you should have noted these JWTs).
+4. Run the collection and correct any errors.
