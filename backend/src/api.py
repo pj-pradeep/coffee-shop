@@ -29,12 +29,6 @@ CORS(app)
 '''
 @app.route('/drinks', methods=['GET'])
 def get_drinks():
-    auth_header = request.headers.get('Authorization', None)
-    
-    if auth_header is None:
-        print('Authorization header is not set in the request.')
-        abort(401)
-
     all_drinks = Drink.query.all()
     if all_drinks is None or len(all_drinks) == 0:
         abort(404)
